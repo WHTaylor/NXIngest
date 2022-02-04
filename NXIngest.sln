@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXIngest", "NXIngest\NXIngest.csproj", "{F1AED4D4-186C-4C0C-8A7A-DBC30C50B4FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TempTester", "TempTester\TempTester.csproj", "{C7A87DAB-A0C2-4341-AA4A-5F7CF5A9B6D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{F1AED4D4-186C-4C0C-8A7A-DBC30C50B4FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1AED4D4-186C-4C0C-8A7A-DBC30C50B4FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1AED4D4-186C-4C0C-8A7A-DBC30C50B4FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A87DAB-A0C2-4341-AA4A-5F7CF5A9B6D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A87DAB-A0C2-4341-AA4A-5F7CF5A9B6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A87DAB-A0C2-4341-AA4A-5F7CF5A9B6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A87DAB-A0C2-4341-AA4A-5F7CF5A9B6D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
