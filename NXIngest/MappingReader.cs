@@ -121,6 +121,22 @@ namespace NXIngest
             return new AddKeywords(value, valueType);
         }
 
+        /// <summary>
+        /// Extract values for a leaf node.
+        ///
+        /// Elements in the mapping file that will become leaf nodes or nodes
+        /// with at most children of depth 1 in the output have children in the
+        /// mapping file that specify what the values in the output will be.
+        /// </summary>
+        /// <param name="node">The node to get the values for</param>
+        /// <param name="requiredElements">Child elements that must exist for
+        /// the node to be valid. If any are missing, the node is ignored.</param>
+        /// <param name="requiredTypes">Child elements that must have a type
+        /// attribute. If any don't the node is ignored.</param>
+        /// <param name="optionalElements">Elements that will be included in the
+        /// output if they exist, but can be empty/non-existent.</param>
+        /// <returns>A dictionary of elementName: (value, typeAttribute), or null
+        /// if any of the requireElements or requiredTypes are not present.</returns>
         private static Dictionary<string, (string, string)> GetLeafNodeValues(
             XmlNode node,
             ICollection<string> requiredElements,
