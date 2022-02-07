@@ -58,7 +58,7 @@ namespace NXIngest
 
         private void Execute(AddParameter cmd)
         {
-            var parameter = _doc.CreateElement(cmd.Name);
+            var parameter = _doc.CreateElement("parameter");
 
             var name = CreateTagElem("name", cmd.Name);
             var units = CreateTagElem("units", _valueResolver.Resolve(cmd.Units, cmd.UnitsType));
