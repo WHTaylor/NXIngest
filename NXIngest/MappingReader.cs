@@ -94,7 +94,7 @@ namespace NXIngest
                         valueType = c.Attributes?["type"]?.Value;
                         if (valueType == "special")
                         {
-                            var parts = c.InnerText.Trim().Split(":");
+                            var parts = c.InnerText.Trim().Split(":", 2);
                             valueType = parts[0];
                             value = parts[1];
                         }
@@ -130,7 +130,7 @@ namespace NXIngest
                         valueType = c.Attributes?["type"]?.Value;
                         if (valueType == "special")
                         {
-                            var parts = c.InnerText.Trim().Split(":");
+                            var parts = c.InnerText.Trim().Split(":", 2);
                             valueType = parts[0];
                             value = parts[1];
                         }

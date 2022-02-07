@@ -18,27 +18,46 @@ namespace NXIngest
 
         public string Resolve(string valueLiteral, MappingValueType mappingValueType)
         {
+            var trimmed = valueLiteral.Trim();
             return mappingValueType switch
             {
-                MappingValueType.Fix => valueLiteral,
-                MappingValueType.Mix => GetMixedValue(valueLiteral),
-                MappingValueType.Nexus => GetNexusValue(valueLiteral),
-                MappingValueType.Time => GetTimeValue(valueLiteral),
-                MappingValueType.Sys => GetSysValue(valueLiteral),
+                MappingValueType.Fix => trimmed,
+                MappingValueType.Mix => GetMixedValue(trimmed),
+                MappingValueType.Nexus => GetNexusValue(trimmed),
+                MappingValueType.Time => GetTimeValue(trimmed),
+                MappingValueType.Sys => GetSysValue(trimmed),
                 _ => throw new ArgumentOutOfRangeException(nameof(mappingValueType),
                     mappingValueType, null)
             };
         }
 
+        const string NexusTimePattern = @"nexus\((?<path>[^)]+)\)";
         private string GetTimeValue(string valueLiteral)
         {
             var parts = valueLiteral.Split(";")
                 .Select(p => p.Trim()).ToList();
             var timeLiteral = parts[0];
+            DateTime time;
+
+            if (timeLiteral.ToLower() == "now")
+            {
+                time = DateTime.Now;
+            }
+            else
+            {
+                var match = Regex.Match(timeLiteral, NexusTimePattern);
+                if (!match.Success)
+                {
+                    throw new Exception(
+                        $"{timeLiteral} must be either 'now' or 'nexus(/path/to/value)'");
+                }
+
+                var path = match.Groups["path"].Value;
+                time = DateTime.Parse(GetNexusValue(path));
+            }
+
             var timeFormat = parts.Count > 1 ? parts[1] : "s";
-            // TODO: Get time from nexus file for time:nexus values
-            var time = DateTime.Now;
-            return time.ToString(timeFormat);
+            return DateTimeFormatter.Format(time, timeFormat);
         }
 
         private string GetSysValue(string valueLiteral) =>
