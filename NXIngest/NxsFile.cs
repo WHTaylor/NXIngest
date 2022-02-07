@@ -23,7 +23,7 @@ namespace NXIngest
             }
 
             var ds = _nxs.Dataset(path);
-            return ds.Type.Class switch
+            var res = ds.Type.Class switch
             {
                 H5DataTypeClass.String => ds.ReadString()[0],
                 H5DataTypeClass.VariableLength => ds.ReadString()[0],
@@ -31,6 +31,7 @@ namespace NXIngest
                 H5DataTypeClass.FixedPoint => ds.Read<int>()[0].ToString(),
                 _ => throw new Exception(ds.Type.Class.ToString())
             };
+            return res.Trim();
         }
 
         private string ReadAttribute(string path, string attribute)
