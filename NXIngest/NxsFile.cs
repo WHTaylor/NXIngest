@@ -16,15 +16,27 @@ namespace NXIngest
 
         public string ReadPath(string path)
         {
-            try
+            if (path.Contains("."))
             {
-                // TODO: Don't assume this is a single string
-                return _nxs.Dataset(path).ReadString()[0];
+                var parts = path.Split(".");
+                return ReadAttribute(parts[0], parts[1]);
             }
-            catch
+
+            var ds = _nxs.Dataset(path);
+            return ds.Type.Class switch
             {
-                return $"{path} NOT FOUND";
-            }
+                H5DataTypeClass.String => ds.ReadString()[0],
+                H5DataTypeClass.VariableLength => ds.ReadString()[0],
+                H5DataTypeClass.FloatingPoint => ds.Read<float>()[0].ToString(),
+                H5DataTypeClass.FixedPoint => ds.Read<int>()[0].ToString(),
+                _ => throw new Exception(ds.Type.Class.ToString())
+            };
+        }
+
+        private string ReadAttribute(string path, string attribute)
+        {
+            var obj = _nxs.Get(path) as H5AttributableObject;
+            return obj?.Attribute(attribute).ReadString()[0];
         }
 
         public string Aggregate(string path, string function)
