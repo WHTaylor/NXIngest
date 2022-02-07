@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NXIngest
 {
@@ -59,9 +60,17 @@ namespace NXIngest
                         p[1],
                         Enum.Parse<MappingValueType>(p[0].Capitalized()))));
 
+        private const string NexusPathPattern =
+            @"(?<path>[^\[]+)(\[(?<aggregateFunction>.+)\])?";
         private string GetNexusValue(string valueLiteral)
         {
-            return _nxs.ReadPath(valueLiteral);
+            var match = Regex.Match(valueLiteral, NexusPathPattern);
+            var path = match.Groups["path"];
+            var aggregateFunction = match.Groups["aggregateFunction"];
+
+            return aggregateFunction.Success
+                ? _nxs.Aggregate(path.Value, aggregateFunction.Value)
+                : _nxs.ReadPath(valueLiteral);
         }
     }
 }

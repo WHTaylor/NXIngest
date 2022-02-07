@@ -5,7 +5,7 @@
         public void Test()
         {
             const string m = "C:/FBS/Other/IngestExternalXmls/mapping_neutron.xml";
-            const string nxs = "C:/Users/rop61488/projects/work/LiveIngestEndToEndTests/test-data/simple-creation-tests/MER58962.nxs";
+            const string nxs = "C:/Users/rop61488/projects/work/LiveIngestEndToEndTests/test-data/simple-creation-tests/VESUVIO00045929.nxs";
             var reader = new MappingReader(m);
             var valueCalc = new ValueResolver(nxs);
             var builder = new XmlBuilder(valueCalc);
