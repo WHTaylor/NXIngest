@@ -58,18 +58,25 @@ namespace NXIngest
 
         private void Execute(AddParameter cmd)
         {
+            var resolvedValue = _valueResolver.Resolve(cmd.Value, cmd.ValueType);
+            if (string.IsNullOrWhiteSpace(resolvedValue)) return;
+
             var parameter = _doc.CreateElement("parameter");
 
             var name = CreateTagElem("name", cmd.Name);
             var units = CreateTagElem("units", _valueResolver.Resolve(cmd.Units, cmd.UnitsType));
-            var description = CreateTagElem("description", cmd.Description);
             var valueTagName = cmd.IsNum ? "numeric_value" : "string_value";
-            var value = CreateTagElem(valueTagName, _valueResolver.Resolve(cmd.Value, cmd.ValueType));
+            var value = CreateTagElem(valueTagName, resolvedValue);
 
             parameter.AppendChild(name);
             parameter.AppendChild(value);
             parameter.AppendChild(units);
-            parameter.AppendChild(description);
+
+            if (!string.IsNullOrWhiteSpace(cmd.Description))
+            {
+                var description = CreateTagElem("description", cmd.Description);
+                parameter.AppendChild(description);
+            }
             CurrentParent.AppendChild(parameter);
         }
 
