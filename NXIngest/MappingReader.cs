@@ -71,127 +71,94 @@ namespace NXIngest
 
         private static MappingCommand ParseStart(XmlNode node)
         {
-             var attrs = node.AttributeItems()
-                 .Where(e => e.Name != "type")
-                 .ToDictionary(e => e.Name, e => e.Value);
+            var attrs = node.AttributeItems()
+                .Where(e => e.Name != "type")
+                .ToDictionary(e => e.Name, e => e.Value);
 
-             return new StartTable(node.Name, attrs);
+            return new StartTable(node.Name, attrs);
         }
 
         private static MappingCommand ParseRecord(XmlNode node)
         {
-            string name = null;
-            string value = null;
-            string valueType = null;
-            foreach (var c in node.Children())
-            {
-                switch (c.Name)
-                {
-                    case "icat_name":
-                        name = c.InnerText.Trim();
-                        break;
-                    case "value":
-                        valueType = c.Attributes?["type"]?.Value;
-                        if (valueType == "special")
-                        {
-                            var parts = c.InnerText.Trim().Split(":", 2);
-                            valueType = parts[0];
-                            value = parts[1];
-                        }
-                        else
-                        {
-                            value = c.InnerText.Trim();
-                        }
-                        break;
-                    // TODO: default to log warning for unrecognised element
-                }
-            }
+            var nodeValues = GetLeafNodeValues(
+                node,
+                new List<string> { "value", "icat_name" },
+                new List<string> { "value" });
+            if (nodeValues == null) return null;
+            var (value, valueType) = nodeValues["value"];
+            var (name, _) = nodeValues["icat_name"];
 
-            if (name == null || value == null || valueType == null) return null;
             return new AddRecord(name, value, valueType);
         }
 
         private static MappingCommand ParseParameter(XmlNode node)
         {
-            string name = null;
-            string value = null;
-            string valueType = null;
-            string units = null;
-            string unitsType = null;
-            string description = null;
-            foreach (var c in node.Children())
-            {
-                switch (c.Name)
-                {
-                    case "icat_name":
-                        name = c.InnerText.Trim();
-                        break;
-                    case "value":
-                        valueType = c.Attributes?["type"]?.Value;
-                        if (valueType == "special")
-                        {
-                            var parts = c.InnerText.Trim().Split(":", 2);
-                            valueType = parts[0];
-                            value = parts[1];
-                        }
-                        else
-                        {
-                            value = c.InnerText.Trim();
-                        }
-                        break;
-                    case "units":
-                        unitsType = c.Attributes?["type"]?.Value;
-                        if (unitsType == "special")
-                        {
-                            var parts = c.InnerText.Trim().Split(":");
-                            unitsType = parts[0];
-                            units = parts[1];
-                        }
-                        else
-                        {
-                            units = c.InnerText.Trim();
-                        }
-                        break;
-                    case "description":
-                        description = c.InnerText.Trim();
-                        break;
-                    // TODO: default to log warning for unrecognised element
-                }
-            }
+            var nodeValues = GetLeafNodeValues(
+                node,
+                new List<string> { "value", "icat_name" },
+                new List<string> { "value", "units" },
+                new List<string> { "units", "description" });
+            if (nodeValues == null) return null;
 
+            var (value, valueType) = nodeValues["value"];
+            var (name, _) = nodeValues["icat_name"];
+            var (units, unitsType) = nodeValues.GetValueOrDefault("units");
+            var (description, _) = nodeValues.GetValueOrDefault("description");
             var type = node.Attributes?["type"]?.Value;
 
-            if (name == null || value == null || valueType == null || description == null || type == null) return null;
-            return new AddParameter(name, value, valueType, units, unitsType, description, type);
+            return new AddParameter(
+                name, value, valueType, units, unitsType, description, type);
         }
 
         private static MappingCommand ParseAsKeyword(XmlNode node)
         {
-            string value = null;
-            string valueType = null;
-            foreach (var c in node.Children())
+            var nodeValues = GetLeafNodeValues(
+                node,
+                new List<string> { "value" },
+                new List<string> { "value" });
+            if (nodeValues == null) return null;
+            var (value, valueType) = nodeValues["value"];
+            return new AddKeywords(value, valueType);
+        }
+
+        private static Dictionary<string, (string, string)> GetLeafNodeValues(
+            XmlNode node,
+            ICollection<string> requiredElements,
+            IEnumerable<string> requiredTypes,
+            IEnumerable<string> optionalElements = null)
+        {
+            (string, string) GetNodeValueAndType(XmlNode n)
             {
-                switch (c.Name)
+                var type = n.Attributes?["type"]?.Value;
+                if (type != "special")
                 {
-                    case "value":
-                        valueType = c.Attributes?["type"]?.Value;
-                        if (valueType == "special")
-                        {
-                            var parts = c.InnerText.Trim().Split(":");
-                            valueType = parts[0];
-                            value = parts[1];
-                        }
-                        else
-                        {
-                            value = c.InnerText.Trim();
-                        }
-                        break;
-                    // TODO: default to log warning for unrecognised element
+                    return (n.InnerText.Trim(), type);
                 }
+
+                // Special type nodes have their type as part of their value,
+                // separated by a colon ie. 'time:now' or 'sys:location'
+                var specialParts = n.InnerText.Trim().Split(":", 2);
+                return (specialParts[1], specialParts[0]);
             }
 
-            if (value == null || valueType == null) return null;
-            return new AddKeywords(value, valueType);
+            var elementsToGet = requiredElements.Concat(
+                optionalElements ?? Enumerable.Empty<string>());
+
+            var res = node.Children()
+                .Where(c => elementsToGet.Contains(c.Name))
+                .ToDictionary(
+                    c => c.Name,
+                    GetNodeValueAndType);
+
+            if (requiredElements.Any(e => !res.ContainsKey(e))
+                || requiredTypes.Any(e =>
+                    res.ContainsKey(e) &&
+                    string.IsNullOrWhiteSpace(res[e].Item2)))
+            {
+                return null;
+            }
+
+            return res;
         }
     }
 }
