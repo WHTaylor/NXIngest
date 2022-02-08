@@ -55,7 +55,7 @@ namespace NXIngest
         private void Execute(AddRecord cmd)
         {
             var value = _valueResolver.Resolve(cmd.Value, cmd.ValueType);
-            if (value == null)
+            if (string.IsNullOrWhiteSpace(value))
             {
                 _log.Warn($"Couldn't resolve record value '{cmd.Value}', type '{cmd.ValueType}'");
                 return;
