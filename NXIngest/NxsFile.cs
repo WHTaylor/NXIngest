@@ -37,7 +37,17 @@ namespace NXIngest
         private string ReadAttribute(string path, string attribute)
         {
             var obj = _nxs.Get(path) as H5AttributableObject;
-            return obj?.Attribute(attribute).ReadString()[0];
+            var attr = obj?.Attribute(attribute);
+            var res = attr?.Type.Class switch
+            {
+                H5DataTypeClass.String => attr.ReadString()[0],
+                H5DataTypeClass.VariableLength => attr.ReadString()[0],
+                H5DataTypeClass.FloatingPoint => attr.Read<float>()[0].ToString(),
+                H5DataTypeClass.FixedPoint => attr.Read<int>()[0].ToString(),
+                null => null,
+                _ => throw new Exception(attr.Type.Class.ToString())
+            };
+            return res?.Trim();
         }
 
         public string Aggregate(string path, string function)
