@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <PackageReference Include="HDF5.NET" Version="1.0.0-alpha.12.final" />
+      <PackageReference Include="log4net" Version="2.0.14" />
     </ItemGroup>
 
 </Project>

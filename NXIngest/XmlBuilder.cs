@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
+using log4net;
 
 namespace NXIngest
 {
     public class XmlBuilder
     {
+        private readonly ILog _log = LogManager.GetLogger(typeof(XmlBuilder));
+
         private readonly XmlDocument _doc = new();
         private readonly Stack<XmlElement> _tableStack = new();
         private readonly ValueResolver _valueResolver;
@@ -51,15 +54,25 @@ namespace NXIngest
 
         private void Execute(AddRecord cmd)
         {
+            var value = _valueResolver.Resolve(cmd.Value, cmd.ValueType);
+            if (value == null)
+            {
+                _log.Warn($"Couldn't resolve record value '{cmd.Value}', type '{cmd.ValueType}'");
+                return;
+            }
             var record = _doc.CreateElement(cmd.Name);
-            record.InnerText = _valueResolver.Resolve(cmd.Value, cmd.ValueType);
+            record.InnerText = value;
             CurrentParent.AppendChild(record);
         }
 
         private void Execute(AddParameter cmd)
         {
             var resolvedValue = _valueResolver.Resolve(cmd.Value, cmd.ValueType);
-            if (string.IsNullOrWhiteSpace(resolvedValue)) return;
+            if (string.IsNullOrWhiteSpace(resolvedValue))
+            {
+                _log.Warn($"Couldn't resolve parameter value '{cmd.Value}', type '{cmd.ValueType}'");
+                return;
+            }
 
             var parameter = _doc.CreateElement("parameter");
 
@@ -83,8 +96,15 @@ namespace NXIngest
         // ReSharper disable once SuggestBaseTypeForParameter
         private void Execute(AddKeywords cmd)
         {
+            var value = _valueResolver.Resolve(cmd.Value, cmd.ValueType);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _log.Warn($"Couldn't resolve keyword value '{cmd.Value}', type '{cmd.ValueType}'");
+                return;
+            }
+
             var keyword = _doc.CreateElement("keyword");
-            var name = CreateTagElem("name", _valueResolver.Resolve(cmd.Value, cmd.ValueType));
+            var name = CreateTagElem("name", value);
             keyword.AppendChild(name);
             CurrentParent.AppendChild(keyword);
         }
