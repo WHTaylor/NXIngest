@@ -25,14 +25,15 @@ namespace NXIngest
 
         public IEnumerator<MappingCommand> GetEnumerator()
         {
-            return Something(_root).GetEnumerator();
+            return ConvertNodeToCommands(_root).GetEnumerator();
         }
 
-        private IEnumerable<MappingCommand> Something(XmlNode current)
+        private static IEnumerable<MappingCommand> ConvertNodeToCommands(
+            XmlNode current)
         {
             if (current.Name == "keyword")
             {
-                var keywords = ParseAsKeyword(current);
+                var keywords = ParseKeyword(current);
                 if (keywords != null) yield return keywords;
             }
             else if (current.Name == "parameter")
@@ -50,7 +51,7 @@ namespace NXIngest
                 yield return ParseStart(current);
                 foreach (var c in current.Children())
                 {
-                    foreach (var res in Something(c))
+                    foreach (var res in ConvertNodeToCommands(c))
                     {
                         yield return res;
                     }
@@ -110,7 +111,7 @@ namespace NXIngest
                 name, value, valueType, units, unitsType, description, type);
         }
 
-        private static MappingCommand ParseAsKeyword(XmlNode node)
+        private static MappingCommand ParseKeyword(XmlNode node)
         {
             var nodeValues = GetLeafNodeValues(
                 node,
@@ -145,23 +146,25 @@ namespace NXIngest
         {
             (string, string) GetNodeValueAndType(XmlNode n)
             {
+                var value = n.InnerText.Trim();
                 var type = n.Attributes?["type"]?.Value;
                 if (type != "special")
                 {
-                    return (n.InnerText.Trim(), type);
+                    return (value, type);
                 }
 
                 // Special type nodes have their type as part of their value,
                 // separated by a colon ie. 'time:now' or 'sys:location'
-                var specialParts = n.InnerText.Trim().Split(":", 2);
+                var specialParts = value.Split(":", 2)
+                    .Select(p => p.Trim()).ToArray();
                 return (specialParts[1], specialParts[0]);
             }
 
-            var elementsToGet = requiredElements.Concat(
+            var childrenToGet = requiredElements.Concat(
                 optionalElements ?? Enumerable.Empty<string>());
 
             var res = node.Children()
-                .Where(c => elementsToGet.Contains(c.Name))
+                .Where(c => childrenToGet.Contains(c.Name))
                 .ToDictionary(
                     c => c.Name,
                     GetNodeValueAndType);

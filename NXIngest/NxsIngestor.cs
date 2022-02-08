@@ -2,18 +2,19 @@
 {
     public class NxsIngestor
     {
-        public void Test()
+        public void IngestNexusFile(
+            string nexusFilePath,
+            string mappingFilePath,
+            string outputPath="default.xml")
         {
-            const string m = "C:/FBS/Other/IngestExternalXmls/mapping_neutron.xml";
-            const string nxs = "C:/Users/rop61488/projects/work/LiveIngestEndToEndTests/test-data/simple-creation-tests/VESUVIO00045929.nxs";
-            var reader = new MappingReader(m);
-            var valueCalc = new ValueResolver(nxs);
+            var reader = new MappingReader(mappingFilePath);
+            var valueCalc = new ValueResolver(nexusFilePath);
             var builder = new XmlBuilder(valueCalc);
             foreach (var c in reader)
             {
                 builder.Execute(c);
             }
-            builder.Save("C:/Users/rop61488/test.xml");
+            builder.Save(outputPath);
         }
     }
 }
