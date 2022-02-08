@@ -103,10 +103,13 @@ namespace NXIngest
                 return;
             }
 
-            var keyword = _doc.CreateElement("keyword");
-            var name = CreateTagElem("name", value);
-            keyword.AppendChild(name);
-            CurrentParent.AppendChild(keyword);
+            foreach (var kw in ValueProcessing.ToKeywords(value))
+            {
+                var keyword = _doc.CreateElement("keyword");
+                var name = CreateTagElem("name", kw);
+                keyword.AppendChild(name);
+                CurrentParent.AppendChild(keyword);
+            }
         }
 
         private XmlElement CreateTagElem(string tagName, string value)
