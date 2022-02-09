@@ -9,7 +9,7 @@ namespace NXIngest
     {
         private readonly ILog _log = LogManager.GetLogger(typeof(NxsFile));
         private readonly H5File _nxs;
-        private readonly Dictionary<string, uint[]> _datasetCache = new();
+        private readonly Dictionary<string, AggregateValues> _aggregateCache = new();
 
         public NxsFile(string path)
         {
@@ -61,31 +61,30 @@ namespace NXIngest
 
         public string Aggregate(string path, string function)
         {
-            var arr = LoadArray(path);
-            Func<uint[], double> f = function switch
+            var aggregates = GetAggregateValues(path);
+            return function switch
             {
-                "MAX" => MatrixOperations.Max,
-                "MIN" => MatrixOperations.Min,
-                "AVG" => MatrixOperations.Avg,
-                "SUM" => MatrixOperations.Sum,
-                "STD" => MatrixOperations.Std,
+                "MAX" => aggregates.Max.ToString(),
+                "MIN" => aggregates.Min.ToString(),
+                "AVG" => aggregates.Avg.ToString(),
+                "SUM" => aggregates.Sum.ToString(),
+                "STD" => aggregates.Std.ToString(),
                 _ => throw new Exception(
                     $"Unknown aggregate function '{function}'"),
             };
-            return f(arr).ToString();
         }
 
-        private uint[] LoadArray(string path)
+        private AggregateValues GetAggregateValues(string path)
         {
-            if (_datasetCache.ContainsKey(path))
+            if (_aggregateCache.ContainsKey(path))
             {
-                return _datasetCache[path];
+                return _aggregateCache[path];
             }
-
             var dataset = _nxs.Dataset(path);
             var arr = dataset.Read<uint>();
-            _datasetCache[path] = arr;
-            return arr;
+            var res = MatrixOperations.CalculateAggregates(arr);
+            _aggregateCache[path] = res;
+            return res;
         }
     }
 }
