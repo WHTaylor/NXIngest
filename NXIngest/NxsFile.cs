@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using HDF5.NET;
 using log4net;
 
@@ -81,8 +82,46 @@ namespace NXIngest
                 return _aggregateCache[path];
             }
             var dataset = _nxs.Dataset(path);
-            var arr = dataset.Read<uint>();
-            var res = MatrixOperations.CalculateAggregates(arr);
+            var dims = dataset.Space.Dimensions;
+
+            const int uintsInAGb = 1_000_000_000 / 32;
+            if (dims.Length > 3)
+            {
+                throw new Exception("Can only aggregate 2d or 3d arrays, " +
+                    $"'{path}' is a {dims.Length}d array");
+            }
+
+            AggregateValues res;
+            if (dims.Length < 3 || dims.Aggregate(1UL, (a, b) => a * b) < uintsInAGb)
+            {
+                var arr = dataset.Read<uint>();
+                res = MatrixOperations.CalculateAggregates(arr);
+            }
+            else
+            {
+                var counts = new List<ArrayCounts>();
+                var numArrays = dims[^1];
+                const int atATime = 149;
+                var toGet = new[] { 0UL, 0UL, 0UL };
+                var arraySize = new[] { dims[0], dims[1], (ulong)atATime };
+                var outputSize = dims[0] * dims[1] * atATime;
+                for (var i = 0UL; i < numArrays; i++)
+                {
+                    toGet[2] = i * atATime;
+                    var fileSelection = new HyperslabSelection(
+                        3,
+                        toGet,
+                        arraySize);
+                    var memorySelection = new HyperslabSelection(0, outputSize);
+                    var arr = dataset.Read<uint>(fileSelection, memorySelection);
+                    var thisCount = MatrixOperations.GetArrayCounts(arr);
+                    Console.WriteLine($"{i}: {thisCount.Sum}");
+                    counts.Add(thisCount);
+                }
+
+                res = AggregateValues.FromCounts(counts);
+            }
+
             _aggregateCache[path] = res;
             return res;
         }
