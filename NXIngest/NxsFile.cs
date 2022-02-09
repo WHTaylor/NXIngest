@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using HDF5.NET;
+using log4net;
 
 namespace NXIngest
 {
     public class NxsFile
     {
+        private readonly ILog _log = LogManager.GetLogger(typeof(NxsFile));
         private readonly H5File _nxs;
         private readonly Dictionary<string, uint[]> _datasetCache = new();
 
@@ -23,6 +25,13 @@ namespace NXIngest
             }
 
             var ds = _nxs.Dataset(path);
+            if (ds.Space.Rank != 1)
+            {
+                _log.Warn(
+                    $"Expected a single value at '{path}', got array of rank " +
+                    $"{ds.Space.Rank}. Ignoring element.");
+                return null;
+            }
             var res = ds.Type.Class switch
             {
                 H5DataTypeClass.String => ds.ReadString()[0],
