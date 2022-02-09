@@ -74,10 +74,18 @@ namespace NXIngest
                 return;
             }
 
+            var resolvedUnitsValue =
+                _valueResolver.Resolve(cmd.Units, cmd.UnitsType);
+            if (string.IsNullOrWhiteSpace(resolvedUnitsValue))
+            {
+                _log.Warn($"Couldn't resolve parameter units value '{cmd.Value}', type '{cmd.ValueType}'");
+                return;
+            }
+
             var parameter = _doc.CreateElement("parameter");
 
             var name = CreateTagElem("name", cmd.Name);
-            var units = CreateTagElem("units", _valueResolver.Resolve(cmd.Units, cmd.UnitsType));
+            var units = CreateTagElem("units", resolvedUnitsValue);
             var valueTagName = cmd.IsNum ? "numeric_value" : "string_value";
             var value = CreateTagElem(valueTagName, resolvedValue);
 
