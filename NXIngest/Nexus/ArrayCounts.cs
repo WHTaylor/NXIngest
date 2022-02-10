@@ -1,4 +1,4 @@
-﻿namespace NXIngest
+﻿namespace NXIngest.Nexus
 {
     public class ArrayCounts
     {

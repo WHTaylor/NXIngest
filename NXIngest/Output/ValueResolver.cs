@@ -2,8 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NXIngest.Nexus;
 
-namespace NXIngest
+namespace NXIngest.Output
 {
     public class ValueResolver
     {

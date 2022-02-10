@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using HDF5.NET;
 using log4net;
 
-namespace NXIngest
+namespace NXIngest.Nexus
 {
     public class NxsFile
     {

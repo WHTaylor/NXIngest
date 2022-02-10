@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NXIngest
+namespace NXIngest.Nexus
 {
     public static class MatrixOperations
     {

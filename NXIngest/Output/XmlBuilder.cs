@@ -2,7 +2,7 @@
 using System.Xml;
 using log4net;
 
-namespace NXIngest
+namespace NXIngest.Output
 {
     public class XmlBuilder
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NXIngest
+namespace NXIngest.Nexus
 {
     public class AggregateValues
     {

@@ -1,4 +1,7 @@
-﻿namespace NXIngest
+﻿using NXIngest.Mapping;
+using NXIngest.Output;
+
+namespace NXIngest
 {
     public class NxsIngestor
     {

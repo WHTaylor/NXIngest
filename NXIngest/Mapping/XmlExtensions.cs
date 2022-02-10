@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace NXIngest
+namespace NXIngest.Mapping
 {
     public static class XmlExtensions
     {

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace NXIngest
+namespace NXIngest.Output
 {
     public static class ValueProcessing
     {

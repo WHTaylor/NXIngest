@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NXIngest
+namespace NXIngest.Output
 {
     /// <summary>
     /// Format datetimes using mapping file format strings

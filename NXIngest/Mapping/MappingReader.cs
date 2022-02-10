@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
-namespace NXIngest
+namespace NXIngest.Mapping
 {
     public class MappingReader : IEnumerable<MappingCommand>
     {
