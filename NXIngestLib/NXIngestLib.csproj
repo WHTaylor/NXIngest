@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>NXIngestLib</AssemblyName>
+        <RootNamespace>NXIngest</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="HDF5.NET" Version="1.0.0-alpha.12.final" />
+      <PackageReference Include="log4net" Version="2.0.14" />
+    </ItemGroup>
+
+</Project>
