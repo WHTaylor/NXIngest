@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using log4net;
 
 namespace NXIngest.Mapping
 {
@@ -16,6 +17,7 @@ namespace NXIngest.Mapping
     /// </summary>
     public class MappingReader : IEnumerable<MappingCommand>
     {
+        private readonly ILog _log = LogManager.GetLogger(typeof(MappingReader));
         private readonly XmlNode _root;
 
         public MappingReader(string path)
@@ -36,7 +38,7 @@ namespace NXIngest.Mapping
             return ConvertNodeToCommands(_root).GetEnumerator();
         }
 
-        private static IEnumerable<MappingCommand> ConvertNodeToCommands(
+        private IEnumerable<MappingCommand> ConvertNodeToCommands(
             XmlNode current)
         {
             if (current.Name == "keyword")
@@ -67,9 +69,9 @@ namespace NXIngest.Mapping
 
                 yield return new EndTable();
             }
-            else
+            else if (current.Name != "#comment")
             {
-                //Console.WriteLine($"Skipping {current.Name}");
+                _log.Info($"Skipping unknown element {current.Name}");
             }
         }
 
