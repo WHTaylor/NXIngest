@@ -72,6 +72,7 @@ namespace NXIngest.Nexus
         public string Aggregate(string path, string function)
         {
             var aggregates = GetAggregateValues(path);
+            if (aggregates == null) return null;
             return function switch
             {
                 "MAX" => aggregates.Max.ToString(),
@@ -93,14 +94,16 @@ namespace NXIngest.Nexus
             }
 
             var dataset = _nxs.Dataset(path);
-
-            AggregateValues res;
             if (dataset.Space.Rank is < 2 or > 3)
             {
-                throw new Exception("Can only aggregate 2d or 3d arrays, " +
-                                    $"'{path}' is a {dataset.Space.Rank}d array");
+                _log.Warn(
+                    "Can only calculate aggregates for 2d or 3d arrays, " +
+                    $"'{path}' is a {dataset.Space.Rank}d array");
+                return null;
             }
-            else if (dataset.Space.Rank == 2)
+
+            AggregateValues res;
+            if (dataset.Space.Rank == 2)
             {
                 var arr = dataset.Read<uint>();
                 res = MatrixOperations.CalculateAggregates(arr);
@@ -122,7 +125,7 @@ namespace NXIngest.Nexus
                 var counts = new List<ArrayCounts>();
                 var (x, y, z) = CalculateStepSize((dims[0], dims[1], dims[2]));
                 var outputSize = x * y * z;
- 
+
                 // For each step of (x, y, z), aggregate the counts of the dataset
                 for (var i = 0UL; i < dims[0]; i += x)
                 {
