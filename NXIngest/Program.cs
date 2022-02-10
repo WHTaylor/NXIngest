@@ -1,21 +1,42 @@
-﻿namespace NXIngest
+﻿using System;
+using System.Linq;
+
+namespace NXIngest
 {
     static class NXIngest
     {
-        private const string vesuvio =
-            "C:/Users/rop61488/projects/work/LiveIngestEndToEndTests/test-data/simple-creation-tests/VESUVIO00045929.nxs";
-
-        private const string wish =
-            "C:/Users/rop61488/projects/work/LiveIngestEndToEndTests/test-data/simple-creation-tests/WISH00049859.nxs";
-
         public static void Main(string[] args)
         {
-            new NxsIngestor()
-                .IngestNexusFile(
-                    wish,
-                    "C:/FBS/Other/IngestExternalXmls/mapping_neutron.xml",
-                    "C:/Users/rop61488/test.xml"
-                );
+            var (nexus, mapping, output) = ParseArgs(args);
+            new NxsIngestor().IngestNexusFile(nexus, mapping, output);
+        }
+
+        private static (string, string, string) ParseArgs(string[] args)
+        {
+            if (args.Contains("-h") || args.Contains("--help"))
+            {
+                PrintHelp();
+                Environment.Exit(0);
+            }
+            else if (args.Length < 2)
+            {
+                Console.Error.WriteLine("Missing required argument");
+                Console.WriteLine();
+                PrintHelp();
+                Environment.Exit(1);
+            }
+
+            return (args[0], args[1],
+                args.Length > 2 ? args[2] : "default.xml");
+        }
+
+        private static void PrintHelp()
+        {
+            Console.WriteLine(
+                "Usage: NXIngest.exe NEXUS_FILE MAPPING_FILE [OUTPUT_FILE]");
+            Console.WriteLine("NEXUS_FILE\tPath to the nexus file to be ingested");
+            Console.WriteLine("MAPPING_FILE\tPath to the mapping file to be used for the output structure");
+            Console.WriteLine("OUTPUT_FILE\tOptional path to write the output file to. Defaults to 'default.xml'");
         }
     }
 }
