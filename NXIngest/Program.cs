@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using log4net.Config;
 
 namespace NXIngest
 {
@@ -7,6 +8,7 @@ namespace NXIngest
     {
         public static void Main(string[] args)
         {
+            BasicConfigurator.Configure();
             var (nexus, mapping, output) = ParseArgs(args);
             new NxsIngestor().IngestNexusFile(nexus, mapping, output);
         }
