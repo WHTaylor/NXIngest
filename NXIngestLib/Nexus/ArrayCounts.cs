@@ -6,9 +6,9 @@
         public readonly uint Max;
         public readonly ulong Sum;
         public readonly double SquaredTotal;
-        public readonly int Count;
+        public readonly uint Count;
 
-        public ArrayCounts(uint min, uint max, ulong sum, double squaredTotal, int count)
+        public ArrayCounts(uint min, uint max, ulong sum, double squaredTotal, uint count)
         {
             Min = min;
             Max = max;

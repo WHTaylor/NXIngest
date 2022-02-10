@@ -40,7 +40,7 @@ namespace NXIngest.Nexus
                 squaredTotal += Math.Pow(val, 2);
             }
 
-            return new ArrayCounts(min, max, total, squaredTotal, arr.Length);
+            return new (min, max, total, squaredTotal, (uint)arr.Length);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace NXIngest.Nexus
             var min = counts.Select(c => c.Min).Min();
             var max = counts.Select(c => c.Max).Max();
             var sum = counts.Aggregate(0UL, (i, c) => i + c.Sum);
-            var count = counts.Aggregate(0, (i, c) => i + c.Count);
+            var count = counts.Aggregate(0U, (i, c) => i + c.Count);
             var mean = (double)sum / count;
             var squaresSum = counts.Aggregate(0.0, (i, c) => i + c.SquaredTotal);
             var squaresMean = squaresSum / count;
