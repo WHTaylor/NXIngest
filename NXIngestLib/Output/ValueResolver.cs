@@ -6,6 +6,19 @@ using NXIngest.Nexus;
 
 namespace NXIngest.Output
 {
+    /// <summary>
+    /// Converts value literals into output values.
+    ///
+    /// The way the literal is resolved depends on the 'type' of the value, as
+    /// defined by the type attribute of the element in the mapping file.
+    ///
+    /// Fix => Included as a literal string, with whitespace trimmed.
+    /// Nexus => Extracted from the nexus file being ingested.
+    /// Time => Either the current datetime, or a datetime from the nexus file.
+    /// Sys => the size, location, or filename of the nexus file.
+    /// Mix => The value is split on '|' characters, then each part is treated
+    /// as a separate value, with its type and value separated by a colon
+    /// </summary>
     public class ValueResolver
     {
         private readonly FileInfo _nxsFileInfo;
