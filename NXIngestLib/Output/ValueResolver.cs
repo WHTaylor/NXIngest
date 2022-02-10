@@ -32,7 +32,7 @@ namespace NXIngest.Output
             };
         }
 
-        const string NexusTimePattern = @"nexus\((?<path>[^)]+)\)";
+        private const string NexusTimePattern = @"nexus\((?<path>[^)]+)\)";
         private string GetTimeValue(string valueLiteral)
         {
             var parts = valueLiteral.Split(";")
@@ -67,7 +67,9 @@ namespace NXIngest.Output
                 "size" => _nxsFileInfo.Length.ToString(),
                 "location" => _nxsFileInfo.FullName,
                 "filename" => _nxsFileInfo.Name,
-                _ => throw new Exception($"Unknown sys value '{valueLiteral}")
+                _ => throw new Exception(
+                    $"Unknown sys value '{valueLiteral}', must be one of " +
+                    "'size', 'location', or 'filename'")
             };
 
         private string GetMixedValue(string valueLiteral) =>

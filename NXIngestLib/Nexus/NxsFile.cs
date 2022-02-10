@@ -44,7 +44,9 @@ namespace NXIngest.Nexus
                 H5DataTypeClass.VariableLength => ds.ReadString()[0],
                 H5DataTypeClass.FloatingPoint => ds.Read<float>()[0].ToString(),
                 H5DataTypeClass.FixedPoint => ds.Read<int>()[0].ToString(),
-                _ => throw new Exception(ds.Type.Class.ToString())
+                _ => throw new Exception(
+                    $"Cannot read dataset value of type {ds.Type.Class}. " +
+                    "Must be a string, integer, or floating point value")
             };
             return res.Trim();
         }
@@ -60,7 +62,9 @@ namespace NXIngest.Nexus
                 H5DataTypeClass.FloatingPoint => attr.Read<float>()[0].ToString(),
                 H5DataTypeClass.FixedPoint => attr.Read<int>()[0].ToString(),
                 null => null,
-                _ => throw new Exception(attr.Type.Class.ToString())
+                _ => throw new Exception(
+                    $"Cannot read dataset attribute of type {attr.Type.Class}. " +
+                    "Must be a string, integer, or floating point value")
             };
             return res?.Trim();
         }
@@ -76,7 +80,8 @@ namespace NXIngest.Nexus
                 "SUM" => aggregates.Sum.ToString(),
                 "STD" => aggregates.Std.ToString(),
                 _ => throw new Exception(
-                    $"Unknown aggregate function '{function}'"),
+                    $"Unknown aggregate function '{function}'. Must be one of" +
+                    "'MAX', 'MIN', 'AVG', 'SUM' or 'STD'."),
             };
         }
 
