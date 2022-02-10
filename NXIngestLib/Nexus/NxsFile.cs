@@ -5,6 +5,9 @@ using log4net;
 
 namespace NXIngest.Nexus
 {
+    /// <summary>
+    /// Provides convenient methods for extracting values from a nexus file
+    /// </summary>
     public class NxsFile
     {
         private readonly ILog _log = LogManager.GetLogger(typeof(NxsFile));

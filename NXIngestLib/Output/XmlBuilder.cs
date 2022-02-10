@@ -4,11 +4,17 @@ using log4net;
 
 namespace NXIngest.Output
 {
+    /// <summary>
+    /// Builds an XML DOM from the values in MappingCommands before saving it as a file
+    /// </summary>
     public class XmlBuilder
     {
         private readonly ILog _log = LogManager.GetLogger(typeof(XmlBuilder));
 
         private readonly XmlDocument _doc = new();
+
+        // The current stack of parent tables. New elements are added as children
+        // of the table on top of the stack.
         private readonly Stack<XmlElement> _tableStack = new();
         private readonly ValueResolver _valueResolver;
 

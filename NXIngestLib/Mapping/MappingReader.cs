@@ -6,6 +6,14 @@ using System.Xml;
 
 namespace NXIngest.Mapping
 {
+    /// <summary>
+    /// Converts elements in a mapping file into commands for XmlBuilder.
+    ///
+    /// Iterating over a MappingReader does a depth first walk over the mapping
+    /// file elements, converting each element of a relevant type into a
+    /// MappingCommand containing the appropriate values from the element
+    /// which can be used to modify the state of an XmlBuilder.
+    /// </summary>
     public class MappingReader : IEnumerable<MappingCommand>
     {
         private readonly XmlNode _root;
@@ -125,9 +133,15 @@ namespace NXIngest.Mapping
         /// <summary>
         /// Extract values for a leaf node.
         ///
-        /// Elements in the mapping file that will become leaf nodes or nodes
-        /// with at most children of depth 1 in the output have children in the
-        /// mapping file that specify what the values in the output will be.
+        /// Other than 'tbl' elements, which can have arbitrarily nested children,
+        /// elements in the mapping file become elements of depth of at most 1
+        /// in the output. The children of the element in the mapping file become
+        /// either the value of the output element, or a leaf child of the output
+        /// element.
+        ///
+        /// This method extracts all of the values from the required and optional
+        /// child nodes of a mapping file node, which are then used to populate a
+        /// command which will create the appropriate output element.
         /// </summary>
         /// <param name="node">The node to get the values for</param>
         /// <param name="requiredElements">Child elements that must exist for
